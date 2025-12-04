@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中韩词汇塔防游戏 | 한중 어휘 타워 디펜스</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', 'Microsoft YaHei', 'Malgun Gothic', sans-serif;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            color: #fff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* 标题 */
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+            background: linear-gradient(90deg, #00d4ff, #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        /* 登录界面 */
+        #loginScreen {
+            text-align: center;
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        #loginScreen h2 {
+            color: #00d4ff;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        #loginScreen p {
+            color: #aaa;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .input-group {
+            margin-bottom: 30px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #00d4ff;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        #playerNameInput {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.2em;
+            border: 2px solid #00d4ff;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        #playerNameInput:focus {
+            outline: none;
+            border-color: #00ff88;
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+        }
+
+        #playerNameInput::placeholder {
+            color: #666;
+        }
+
+        /* 开始界面 */
+        #startScreen {
+            text-align: center;
+            padding: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: none;
+        }
+
+        #startScreen h2 {
+            color: #00d4ff;
+            margin-bottom: 20px;
+        }
+
+        .welcome-message {
+            font-size: 1.5em;
+            color: #00ff88;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .btn {
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 10px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #00d4ff, #00ff88);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(0, 212, 255, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            border: 2px solid #00d4ff;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 212, 255, 0.2);
+            transform: translateY(-3px);
+        }
+
+        /* 游戏界面 */
+        #gameScreen {
+            display: none;
+        }
+
+        /* 玩家信息栏 */
+        .player-info {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .player-info .player-name {
+            font-size: 1.3em;
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* 状态栏 */
+        .status-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        /* 游戏画布 */
+        #gameCanvas {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        /* 题目区域 */
+        .question-area {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            border: 2px solid rgba(0, 212, 255, 0.3);
+        }
+
+        .question-text {
+            font-size: 2.5em;
+            color: #00ff88;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+        }
+
+        .question-type {
+            font-size: 1em;
+            color: #aaa;
+        }
+
+        /* 选项区域 */
+        .options-area {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(0, 212, 255, 0.3);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.2em;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background: rgba(0, 212, 255, 0.2);
+            border-color: #00d4ff;
+            transform: translateY(-2px);
+        }
+
+        .option-btn.correct {
+            background: rgba(0, 255, 136, 0.3);
+            border-color: #00ff88;
+        }
+
+        .option-btn.wrong {
+            background: rgba(255, 0, 136, 0.3);
+            border-color: #ff0088;
+        }
+
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* 结果界面 */
+        #resultScreen {
+            display: none;
+        }
+
+        .result-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-title {
+            font-size: 2em;
+            color: #00d4ff;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .result-player {
+            text-align: center;
+            font-size: 1.5em;
+            color: #00ff88;
+            margin-bottom: 30px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: rgba(0, 212, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #00d4ff;
+        }
+
+        .stat-item-label {
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .stat-item-value {
+            font-size: 2em;
+            color: #00ff88;
+            font-weight: bold;
+        }
+
+        /* 图表容器 */
+        .chart-container {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            color: #00d4ff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .chart-canvas {
+            width: 100%;
+            height: 200px;
+            border-radius: 5px;
+        }
+
+        /* Boss 提示 */
+        .boss-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 136, 0.95);
+            padding: 40px 60px;
+            border-radius: 20px;
+            font-size: 3em;
+            font-weight: bold;
+            z-index: 1000;
+            animation: bossAppear 1s ease;
+            display: none;
+            border: 3px solid #ff0088;
+            box-shadow: 0 0 50px rgba(255, 0, 136, 0.8);
+        }
+
+        @keyframes bossAppear {
+            0% { transform: translate(-50%, -50%) scale(0); }
+            50% { transform: translate(-50%, -50%) scale(1.2); }
+            100% { transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .status-bar {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .options-area {
+                grid-template-columns: 1fr;
+            }
+            h1 {
+                font-size: 1.8em;
+            }
+            .question-text {
+                font-size: 2em;
+            }
+            .boss-alert {
+                font-size: 2em;
+                padding: 30px 40px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 中韩词汇塔防游戏 | 한중 어휘 타워 디펜스 🎮</h1>
+        <p class="subtitle">击败怪物，掌握词汇！| 몬스터를 물리치고 어휘를 마스터하세요!</p>
+
+        <!-- 登录界面 -->
+        <div id="loginScreen">
+            <h2>欢迎 | 환영합니다</h2>
+            <p>请输入您的名字开始游戏<br>이름을 입력하여 게임을 시작하세요</p>
+            
+            <div class="input-group">
+                <label for="playerNameInput">玩家名字 | 플레이어 이름</label>
+                <input 
+                    type="text" 
+                    id="playerNameInput" 
+                    placeholder="请输入您的名字 | 이름을 입력하세요" 
+                    maxlength="20"
+                    autocomplete="off"
+                >
+            </div>
+            
+            <button class="btn btn-primary" onclick="login()">开始 | 시작</button>
+        </div>
+
+        <!-- 开始界面 -->
+        <div id="startScreen">
+            <div class="welcome-message">
+                👋 欢迎，<span id="welcomeName"></span>！<br>
+                환영합니다!
+            </div>
+            
+            <h2>游戏规则 | 게임 규칙</h2>
+            <p style="margin-bottom: 20px; line-height: 1.8; color: #ccc;">
+                ✅ 选择正确的词汇翻译击败怪物<br>
+                ❌ 答错会让怪物加速前进<br>
+                👾 每10题出现Boss怪物，需连续答对3次<br>
+                ⚠️ 5只怪物到达终点 = 游戏失败<br><br>
+                정확한 어휘 번역을 선택하여 몬스터를 물리치세요!
+            </p>
+            <button class="btn btn-primary" onclick="startGame()">开始游戏 | 게임 시작</button>
+            <button class="btn btn-secondary" onclick="logout()">更换玩家 | 플레이어 변경</button>
+        </div>
+
+        <!-- 游戏界面 -->
+        <div id="gameScreen">
+            <!-- 玩家信息 -->
+            <div class="player-info">
+                <span>玩家 | 플레이어: </span>
+                <span class="player-name" id="playerNameDisplay"></span>
+            </div>
+
+            <!-- 状态栏 -->
+            <div class="status-bar">
+                <div class="stat-box">
+                    <div class="stat-label">分数 | 점수</div>
+                    <div class="stat-value" id="scoreDisplay">0</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">正确率 | 정답률</div>
+                    <div class="stat-value" id="accuracyDisplay">100%</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">难度等级 | 난이도</div>
+                    <div class="stat-value" id="difficultyDisplay">1</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">逃脱怪物 | 탈출</div>
+                    <div class="stat-value" id="escapedDisplay">0/5</div>
+                </div>
+            </div>
+
+            <!-- 游戏画布 -->
+            <canvas id="gameCanvas"></canvas>
+
+            <!-- 题目区域 -->
+            <div class="question-area">
+                <div class="question-text" id="questionText">准备中...</div>
+                <div class="question-type" id="questionType">请选择正确的翻译 | 올바른 번역을 선택하세요</div>
+            </div>
+
+            <!-- 选项区域 -->
+            <div class="options-area" id="optionsArea"></div>
+        </div>
+
+        <!-- 结果界面 -->
+        <div id="resultScreen">
+            <div class="result-card">
+                <h2 class="result-title" id="resultTitle">游戏结束 | 게임 종료</h2>
+                <div class="result-player">
+                    玩家 | 플레이어: <span id="resultPlayerName"></span>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-item-label">总得分 | 총점</div>
+                        <div class="stat-item-value" id="finalScore">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-label">正确率 | 정답률</div>
+                        <div class="stat-item-value" id="finalAccuracy">0%</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-label">平均反应时间 | 평균 반응 시간</div>
+                        <div class="stat-item-value" id="avgReactionTime">0s</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-item-label">最高难度 | 최고 난이도</div>
+                        <div class="stat-item-value" id="maxDifficulty">1</div>
+                    </div>
+                </div>
+
+                <!-- 统计图表 -->
+                <div class="chart-container">
+                    <h3 class="chart-title">正确率趋势 | 정답률 추이</h3>
+                    <canvas class="chart-canvas" id="accuracyChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">难度变化 | 난이도 변화</h3>
+                    <canvas class="chart-canvas" id="difficultyChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3 class="chart-title">反应时间分布 | 반응 시간 분포</h3>
+                    <canvas class="chart-canvas" id="reactionChart"></canvas>
+                </div>
+
+                <div style="text-align: center; margin-top: 30px;">
+                    <button class="btn btn-primary" onclick="restartGame()">再玩一次 | 다시 하기</button>
+                    <button class="btn btn-secondary" onclick="logout()">返回登录 | 로그인으로</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Boss 提示 -->
+        <div class="boss-alert" id="bossAlert">⚡ BOSS 出现！ ⚡</div>
+    </div>
+
+    <script>
+        // ============================================
+        // 词汇数据库 (200+ 中韩英词汇)
+        // ============================================
+        const vocabulary = [
+            // 基础词汇 (难度 1) - 50个
+            { english: "hello", korean: "안녕하세요", chinese: "你好", difficulty: 1 },
+            { english: "thank you", korean: "감사합니다", chinese: "谢谢", difficulty: 1 },
+            { english: "goodbye", korean: "안녕히 가세요", chinese: "再见", difficulty: 1 },
+            { english: "yes", korean: "네", chinese: "是", difficulty: 1 },
+            { english: "no", korean: "아니요", chinese: "不是", difficulty: 1 },
+            { english: "water", korean: "물", chinese: "水", difficulty: 1 },
+            { english: "food", korean: "음식", chinese: "食物", difficulty: 1 },
+            { english: "house", korean: "집", chinese: "房子", difficulty: 1 },
+            { english: "school", korean: "학교", chinese: "学校", difficulty: 1 },
+            { english: "book", korean: "책", chinese: "书", difficulty: 1 },
+            { english: "friend", korean: "친구", chinese: "朋友", difficulty: 1 },
+            { english: "family", korean: "가족", chinese: "家人", difficulty: 1 },
+            { english: "mother", korean: "어머니", chinese: "妈妈", difficulty: 1 },
+            { english: "father", korean: "아버지", chinese: "爸爸", difficulty: 1 },
+            { english: "teacher", korean: "선생님", chinese: "老师", difficulty: 1 },
+            { english: "student", korean: "학생", chinese: "学生", difficulty: 1 },
+            { english: "time", korean: "시간", chinese: "时间", difficulty: 1 },
+            { english: "today", korean: "오늘", chinese: "今天", difficulty: 1 },
+            { english: "tomorrow", korean: "내일", chinese: "明天", difficulty: 1 },
+            { english: "yesterday", korean: "어제", chinese: "昨天", difficulty: 1 },
+            { english: "morning", korean: "아침", chinese: "早上", difficulty: 1 },
+            { english: "night", korean: "밤", chinese: "晚上", difficulty: 1 },
+            { english: "day", korean: "날", chinese: "天", difficulty: 1 },
+            { english: "year", korean: "년", chinese: "年", difficulty: 1 },
+            { english: "month", korean: "월", chinese: "月", difficulty: 1 },
+            { english: "week", korean: "주", chinese: "周", difficulty: 1 },
+            { english: "love", korean: "사랑", chinese: "爱", difficulty: 1 },
+            { english: "like", korean: "좋아하다", chinese: "喜欢", difficulty: 1 },
+            { english: "hate", korean: "싫어하다", chinese: "讨厌", difficulty: 1 },
+            { english: "want", korean: "원하다", chinese: "想要", difficulty: 1 },
+            { english: "need", korean: "필요하다", chinese: "需要", difficulty: 1 },
+            { english: "have", korean: "있다", chinese: "有", difficulty: 1 },
+            { english: "eat", korean: "먹다", chinese: "吃", difficulty: 1 },
+            { english: "drink", korean: "마시다", chinese: "喝", difficulty: 1 },
+            { english: "sleep", korean: "자다", chinese: "睡觉", difficulty: 1 },
+            { english: "walk", korean: "걷다", chinese: "走", difficulty: 1 },
+            { english: "run", korean: "달리다", chinese: "跑", difficulty: 1 },
+            { english: "sit", korean: "앉다", chinese: "坐", difficulty: 1 },
+            { english: "stand", korean: "서다", chinese: "站", difficulty: 1 },
+            { english: "come", korean: "오다", chinese: "来", difficulty: 1 },
+            { english: "go", korean: "가다", chinese: "去", difficulty: 1 },
+            { english: "see", korean: "보다", chinese: "看", difficulty: 1 },
+            { english: "hear", korean: "듣다", chinese: "听", difficulty: 1 },
+            { english: "speak", korean: "말하다", chinese: "说", difficulty: 1 },
+            { english: "read", korean: "읽다", chinese: "读", difficulty: 1 },
+            { english: "write", korean: "쓰다", chinese: "写", difficulty: 1 },
+            { english: "study", korean: "공부하다", chinese: "学习", difficulty: 1 },
+            { english: "work", korean: "일하다", chinese: "工作", difficulty: 1 },
+            { english: "play", korean: "놀다", chinese: "玩", difficulty: 1 },
+            { english: "buy", korean: "사다", chinese: "买", difficulty: 1 },
+
+            // 中级词汇 (难度 2) - 60个
+            { english: "language", korean: "언어", chinese: "语言", difficulty: 2 },
+            { english: "culture", korean: "문화", chinese: "文化", difficulty: 2 },
+            { english: "history", korean: "역사", chinese: "历史", difficulty: 2 },
+            { english: "future", korean: "미래", chinese: "未来", difficulty: 2 },
+            { english: "past", korean: "과거", chinese: "过去", difficulty: 2 },
+            { english: "present", korean: "현재", chinese: "现在", difficulty: 2 },
+            { english: "country", korean: "나라", chinese: "国家", difficulty: 2 },
+            { english: "city", korean: "도시", chinese: "城市", difficulty: 2 },
+            { english: "village", korean: "마을", chinese: "村庄", difficulty: 2 },
+            { english: "mountain", korean: "산", chinese: "山", difficulty: 2 },
+            { english: "river", korean: "강", chinese: "河", difficulty: 2 },
+            { english: "ocean", korean: "바다", chinese: "海洋", difficulty: 2 },
+            { english: "weather", korean: "날씨", chinese: "天气", difficulty: 2 },
+            { english: "rain", korean: "비", chinese: "雨", difficulty: 2 },
+            { english: "snow", korean: "눈", chinese: "雪", difficulty: 2 },
+            { english: "wind", korean: "바람", chinese: "风", difficulty: 2 },
+            { english: "sun", korean: "해", chinese: "太阳", difficulty: 2 },
+            { english: "moon", korean: "달", chinese: "月亮", difficulty: 2 },
+            { english: "star", korean: "별", chinese: "星星", difficulty: 2 },
+            { english: "flower", korean: "꽃", chinese: "花", difficulty: 2 },
+            { english: "tree", korean: "나무", chinese: "树", difficulty: 2 },
+            { english: "animal", korean: "동물", chinese: "动物", difficulty: 2 },
+            { english: "bird", korean: "새", chinese: "鸟", difficulty: 2 },
+            { english: "fish", korean: "물고기", chinese: "鱼", difficulty: 2 },
+            { english: "dog", korean: "개", chinese: "狗", difficulty: 2 },
+            { english: "cat", korean: "고양이", chinese: "猫", difficulty: 2 },
+            { english: "color", korean: "색깔", chinese: "颜色", difficulty: 2 },
+            { english: "red", korean: "빨간색", chinese: "红色", difficulty: 2 },
+            { english: "blue", korean: "파란색", chinese: "蓝色", difficulty: 2 },
+            { english: "yellow", korean: "노란색", chinese: "黄色", difficulty: 2 },
+            { english: "green", korean: "초록색", chinese: "绿色", difficulty: 2 },
+            { english: "white", korean: "하얀색", chinese: "白色", difficulty: 2 },
+            { english: "black", korean: "검은색", chinese: "黑色", difficulty: 2 },
+            { english: "number", korean: "숫자", chinese: "数字", difficulty: 2 },
+            { english: "one", korean: "하나", chinese: "一", difficulty: 2 },
+            { english: "two", korean: "둘", chinese: "二", difficulty: 2 },
+            { english: "three", korean: "셋", chinese: "三", difficulty: 2 },
+            { english: "four", korean: "넷", chinese: "四", difficulty: 2 },
+            { english: "five", korean: "다섯", chinese: "五", difficulty: 2 },
+            { english: "big", korean: "크다", chinese: "大", difficulty: 2 },
+            { english: "small", korean: "작다", chinese: "小", difficulty: 2 },
+            { english: "long", korean: "길다", chinese: "长", difficulty: 2 },
+            { english: "short", korean: "짧다", chinese: "短", difficulty: 2 },
+            { english: "tall", korean: "높다", chinese: "高", difficulty: 2 },
+            { english: "low", korean: "낮다", chinese: "低", difficulty: 2 },
+            { english: "hot", korean: "뜨겁다", chinese: "热", difficulty: 2 },
+            { english: "cold", korean: "춥다", chinese: "冷", difficulty: 2 },
+            { english: "warm", korean: "따뜻하다", chinese: "温暖", difficulty: 2 },
+            { english: "cool", korean: "시원하다", chinese: "凉爽", difficulty: 2 },
+            { english: "beautiful", korean: "아름답다", chinese: "美丽", difficulty: 2 },
+            { english: "ugly", korean: "못생기다", chinese: "丑", difficulty: 2 },
+            { english: "good", korean: "좋다", chinese: "好", difficulty: 2 },
+            { english: "bad", korean: "나쁘다", chinese: "坏", difficulty: 2 },
+            { english: "happy", korean: "행복하다", chinese: "幸福", difficulty: 2 },
+            { english: "sad", korean: "슬프다", chinese: "悲伤", difficulty: 2 },
+            { english: "angry", korean: "화나다", chinese: "生气", difficulty: 2 },
+            { english: "tired", korean: "피곤하다", chinese: "累", difficulty: 2 },
+            { english: "hungry", korean: "배고프다", chinese: "饿", difficulty: 2 },
+            { english: "thirsty", korean: "목마르다", chinese: "渴", difficulty: 2 },
+            { english: "sick", korean: "아프다", chinese: "生病", difficulty: 2 },
+
+            // 高级词汇 (难度 3) - 100个
+            { english: "economy", korean: "경제", chinese: "经济", difficulty: 3 },
+            { english: "politics", korean: "정치", chinese: "政治", difficulty: 3 },
+            { english: "society", korean: "사회", chinese: "社会", difficulty: 3 },
+            { english: "technology", korean: "기술", chinese: "技术", difficulty: 3 },
+            { english: "science", korean: "과학", chinese: "科学", difficulty: 3 },
+            { english: "education", korean: "교육", chinese: "教育", difficulty: 3 },
+            { english: "environment", korean: "환경", chinese: "环境", difficulty: 3 },
+            { english: "development", korean: "발전", chinese: "发展", difficulty: 3 },
+            { english: "problem", korean: "문제", chinese: "问题", difficulty: 3 },
+            { english: "solution", korean: "해결책", chinese: "解决方案", difficulty: 3 },
+            { english: "opportunity", korean: "기회", chinese: "机会", difficulty: 3 },
+            { english: "challenge", korean: "도전", chinese: "挑战", difficulty: 3 },
+            { english: "success", korean: "성공", chinese: "成功", difficulty: 3 },
+            { english: "failure", korean: "실패", chinese: "失败", difficulty: 3 },
+            { english: "experience", korean: "경험", chinese: "经验", difficulty: 3 },
+            { english: "knowledge", korean: "지식", chinese: "知识", difficulty: 3 },
+            { english: "wisdom", korean: "지혜", chinese: "智慧", difficulty: 3 },
+            { english: "ability", korean: "능력", chinese: "能力", difficulty: 3 },
+            { english: "skill", korean: "기술", chinese: "技能", difficulty: 3 },
+            { english: "talent", korean: "재능", chinese: "才能", difficulty: 3 },
+            { english: "effort", korean: "노력", chinese: "努力", difficulty: 3 },
+            { english: "achievement", korean: "성취", chinese: "成就", difficulty: 3 },
+            { english: "goal", korean: "목표", chinese: "目标", difficulty: 3 },
+            { english: "dream", korean: "꿈", chinese: "梦想", difficulty: 3 },
+            { english: "hope", korean: "희망", chinese: "希望", difficulty: 3 },
+            { english: "courage", korean: "용기", chinese: "勇气", difficulty: 3 },
+            { english: "confidence", korean: "자신감", chinese: "自信", difficulty: 3 },
+            { english: "patience", korean: "인내", chinese: "耐心", difficulty: 3 },
+            { english: "honesty", korean: "정직", chinese: "诚实", difficulty: 3 },
+            { english: "kindness", korean: "친절", chinese: "善良", difficulty: 3 },
+            { english: "respect", korean: "존중", chinese: "尊重", difficulty: 3 },
+            { english: "responsibility", korean: "책임", chinese: "责任", difficulty: 3 },
+            { english: "freedom", korean: "자유", chinese: "自由", difficulty: 3 },
+            { english: "peace", korean: "평화", chinese: "和平", difficulty: 3 },
+            { english: "justice", korean: "정의", chinese: "正义", difficulty: 3 },
+            { english: "equality", korean: "평등", chinese: "平等", difficulty: 3 },
+            { english: "democracy", korean: "민주주의", chinese: "民主", difficulty: 3 },
+            { english: "tradition", korean: "전통", chinese: "传统", difficulty: 3 },
+            { english: "innovation", korean: "혁신", chinese: "创新", difficulty: 3 },
+            { english: "cooperation", korean: "협력", chinese: "合作", difficulty: 3 },
+            { english: "competition", korean: "경쟁", chinese: "竞争", difficulty: 3 },
+            { english: "communication", korean: "소통", chinese: "沟通", difficulty: 3 },
+            { english: "understanding", korean: "이해", chinese: "理解", difficulty: 3 },
+            { english: "relationship", korean: "관계", chinese: "关系", difficulty: 3 },
+            { english: "emotion", korean: "감정", chinese: "情感", difficulty: 3 },
+            { english: "thought", korean: "생각", chinese: "思想", difficulty: 3 },
+            { english: "memory", korean: "기억", chinese: "记忆", difficulty: 3 },
+            { english: "imagination", korean: "상상력", chinese: "想象力", difficulty: 3 },
+            { english: "creativity", korean: "창의성", chinese: "创造力", difficulty: 3 },
+            { english: "curiosity", korean: "호기심", chinese: "好奇心", difficulty: 3 },
+            { english: "motivation", korean: "동기", chinese: "动机", difficulty: 3 },
+            { english: "determination", korean: "결단력", chinese: "决心", difficulty: 3 },
+            { english: "perseverance", korean: "인내력", chinese: "毅力", difficulty: 3 },
+            { english: "adaptability", korean: "적응력", chinese: "适应能力", difficulty: 3 },
+            { english: "flexibility", korean: "유연성", chinese: "灵活性", difficulty: 3 },
+            { english: "efficiency", korean: "효율성", chinese: "效率", difficulty: 3 },
+            { english: "productivity", korean: "생산성", chinese: "生产力", difficulty: 3 },
+            { english: "quality", korean: "품질", chinese: "质量", difficulty: 3 },
+            { english: "quantity", korean: "수량", chinese: "数量", difficulty: 3 },
+            { english: "balance", korean: "균형", chinese: "平衡", difficulty: 3 },
+            { english: "harmony", korean: "조화", chinese: "和谐", difficulty: 3 },
+            { english: "diversity", korean: "다양성", chinese: "多样性", difficulty: 3 },
+            { english: "similarity", korean: "유사성", chinese: "相似性", difficulty: 3 },
+            { english: "difference", korean: "차이", chinese: "差异", difficulty: 3 },
+            { english: "advantage", korean: "장점", chinese: "优势", difficulty: 3 },
+            { english: "disadvantage", korean: "단점", chinese: "劣势", difficulty: 3 },
+            { english: "strength", korean: "강점", chinese: "强项", difficulty: 3 },
+            { english: "weakness", korean: "약점", chinese: "弱点", difficulty: 3 },
+            { english: "possibility", korean: "가능성", chinese: "可能性", difficulty: 3 },
+            { english: "probability", korean: "확률", chinese: "概率", difficulty: 3 },
+            { english: "necessity", korean: "필요성", chinese: "必要性", difficulty: 3 },
+            { english: "importance", korean: "중요성", chinese: "重要性", difficulty: 3 },
+            { english: "significance", korean: "의의", chinese: "意义", difficulty: 3 },
+            { english: "influence", korean: "영향", chinese: "影响", difficulty: 3 },
+            { english: "impact", korean: "영향력", chinese: "冲击", difficulty: 3 },
+            { english: "consequence", korean: "결과", chinese: "后果", difficulty: 3 },
+            { english: "reason", korean: "이유", chinese: "原因", difficulty: 3 },
+            { english: "cause", korean: "원인", chinese: "起因", difficulty: 3 },
+            { english: "effect", korean: "효과", chinese: "效果", difficulty: 3 },
+            { english: "purpose", korean: "목적", chinese: "目的", difficulty: 3 },
+            { english: "method", korean: "방법", chinese: "方法", difficulty: 3 },
+            { english: "process", korean: "과정", chinese: "过程", difficulty: 3 },
+            { english: "result", korean: "결과", chinese: "结果", difficulty: 3 },
+            { english: "conclusion", korean: "결론", chinese: "结论", difficulty: 3 },
+            { english: "beginning", korean: "시작", chinese: "开始", difficulty: 3 },
+            { english: "end", korean: "끝", chinese: "结束", difficulty: 3 },
+            { english: "middle", korean: "중간", chinese: "中间", difficulty: 3 },
+            { english: "whole", korean: "전체", chinese: "整体", difficulty: 3 },
+            { english: "part", korean: "부분", chinese: "部分", difficulty: 3 },
+            { english: "detail", korean: "세부사항", chinese: "细节", difficulty: 3 },
+            { english: "summary", korean: "요약", chinese: "总结", difficulty: 3 },
+            { english: "explanation", korean: "설명", chinese: "解释", difficulty: 3 },
+            { english: "description", korean: "묘사", chinese: "描述", difficulty: 3 },
+            { english: "definition", korean: "정의", chinese: "定义", difficulty: 3 },
+            { english: "example", korean: "예", chinese: "例子", difficulty: 3 },
+            { english: "theory", korean: "이론", chinese: "理论", difficulty: 3 },
+            { english: "practice", korean: "실천", chinese: "实践", difficulty: 3 },
+            { english: "reality", korean: "현실", chinese: "现实", difficulty: 3 },
+            { english: "ideal", korean: "이상", chinese: "理想", difficulty: 3 },
+        ];
+
+        // ============================================
+        // 游戏状态变量
+        // ============================================
+        let playerName = '';
+        let canvas, ctx;
+        let score = 0;
+        let correctAnswers = 0;
+        let totalQuestions = 0;
+        let difficultyLevel = 1;
+        let escapedMonsters = 0;
+        let maxEscaped = 5;
+        let questionStartTime = 0;
+        let reactionTimes = [];
+        let correctHistory = [];
+        let difficultyHistory = [];
+        let monsters = [];
+        let bullets = [];
+        let currentQuestion = null;
+        let gameRunning = false;
+        let questionNumber = 0;
+        let consecutiveCorrect = 0;
+        let consecutiveWrong = 0;
+        let isBossRound = false;
+        let bossHitsNeeded = 3;
+        let bossHits = 0;
+
+        // ============================================
+        // 登录功能
+        // ============================================
+        function login() {
+            const nameInput = document.getElementById('playerNameInput');
+            const name = nameInput.value.trim();
+            
+            if (name === '') {
+                alert('请输入您的名字！\n이름을 입력해주세요!');
+                nameInput.focus();
+                return;
+            }
+            
+            playerName = name;
+            
+            // 切换界面
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+            document.getElementById('welcomeName').textContent = playerName;
+        }
+
+        // 监听Enter键
+        window.addEventListener('DOMContentLoaded', function() {
+            const nameInput = document.getElementById('playerNameInput');
+            if (nameInput) {
+                nameInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        login();
+                    }
+                });
+                nameInput.focus();
+            }
+        });
+
+        // ============================================
+        // 登出功能
+        // ============================================
+        function logout() {
+            playerName = '';
+            document.getElementById('playerNameInput').value = '';
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('playerNameInput').focus();
+            }, 100);
+        }
+
+        // ============================================
+        // 怪物类
+        // ============================================
+        class Monster {
+            constructor(isBoss = false) {
+                this.x = canvas.width;
+                this.y = Math.random() * (canvas.height - 60) + 30;
+                this.speed = isBoss ? 0.5 : 1 + Math.random() * 0.5;
+                this.health = isBoss ? 100 : 50;
+                this.maxHealth = this.health;
+                this.isBoss = isBoss;
+                this.size = isBoss ? 50 : 30;
+                this.color = isBoss ? '#ff0088' : '#ff4444';
+            }
+
+            update() {
+                this.x -= this.speed;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(this.x - 10, this.y - 5, 5, 0, Math.PI * 2);
+                ctx.arc(this.x + 10, this.y - 5, 5, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(this.x - 10, this.y - 5, 2, 0, Math.PI * 2);
+                ctx.arc(this.x + 10, this.y - 5, 2, 0, Math.PI * 2);
+                ctx.fill();
+
+                const barWidth = this.size * 2;
+                const barHeight = 5;
+                const healthPercent = this.health / this.maxHealth;
+                
+                ctx.fillStyle = '#333';
+                ctx.fillRect(this.x - barWidth / 2, this.y - this.size - 10, barWidth, barHeight);
+                
+                ctx.fillStyle = this.isBoss ? '#ff00ff' : '#00ff00';
+                ctx.fillRect(this.x - barWidth / 2, this.y - this.size - 10, barWidth * healthPercent, barHeight);
+
+                if (this.isBoss) {
+                    ctx.fillStyle = '#ffff00';
+                    ctx.font = 'bold 12px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('BOSS', this.x, this.y - this.size - 15);
+                }
+            }
+
+            takeDamage(damage) {
+                this.health -= damage;
+                return this.health <= 0;
+            }
+
+            speedUp() {
+                this.speed *= 1.5;
+            }
+        }
+
+        // ============================================
+        // 子弹类
+        // ============================================
+        class Bullet {
+            constructor(targetX, targetY) {
+                this.x = 50;
+                this.y = canvas.height / 2;
+                this.targetX = targetX;
+                this.targetY = targetY;
+                this.speed = 8;
+                const angle = Math.atan2(targetY - this.y, targetX - this.x);
+                this.vx = Math.cos(angle) * this.speed;
+                this.vy = Math.sin(angle) * this.speed;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+            }
+
+            draw() {
+                ctx.fillStyle = '#00ff88';
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#00ff88';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            isOffScreen() {
+                return this.x > canvas.width || this.x < 0 || this.y > canvas.height || this.y < 0;
+            }
+        }
+
+        // ============================================
+        // 游戏初始化
+        // ============================================
+        function initGame() {
+            canvas = document.getElementById('gameCanvas');
+            ctx = canvas.getContext('2d');
+            
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 400;
+
+            window.addEventListener('resize', () => {
+                if (canvas && gameRunning) {
+                    const oldWidth = canvas.width;
+                    canvas.width = canvas.offsetWidth;
+                    canvas.height = 400;
+                    
+                    // 调整怪物位置
+                    const ratio = canvas.width / oldWidth;
+                    monsters.forEach(m => m.x *= ratio);
+                    bullets.forEach(b => {
+                        b.x *= ratio;
+                        b.targetX *= ratio;
+                    });
+                }
+            });
+        }
+
+        // ============================================
+        // 开始游戏
+        // ============================================
+        function startGame() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'block';
+            
+            document.getElementById('playerNameDisplay').textContent = playerName;
+            
+            // 重置变量
+            score = 0;
+            correctAnswers = 0;
+            totalQuestions = 0;
+            difficultyLevel = 1;
+            escapedMonsters = 0;
+            reactionTimes = [];
+            correctHistory = [];
+            difficultyHistory = [];
+            monsters = [];
+            bullets = [];
+            questionNumber = 0;
+            consecutiveCorrect = 0;
+            consecutiveWrong = 0;
+            gameRunning = true;
+
+            initGame();
+            spawnMonster();
+            generateQuestion();
+            gameLoop();
+        }
+
+        // ============================================
+        // 生成怪物
+        // ============================================
+        function spawnMonster() {
+            questionNumber++;
+            isBossRound = questionNumber % 10 === 0;
+            
+            if (isBossRound) {
+                showBossAlert();
+                bossHits = 0;
+                monsters.push(new Monster(true));
+            } else {
+                monsters.push(new Monster(false));
+            }
+        }
+
+        // ============================================
+        // 显示Boss提示
+        // ============================================
+        function showBossAlert() {
+            const alert = document.getElementById('bossAlert');
+            alert.style.display = 'block';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 2000);
+        }
+
+        // ============================================
+        // 生成问题
+        // ============================================
+        function generateQuestion() {
+            questionStartTime = Date.now();
+            
+            const availableWords = vocabulary.filter(word => word.difficulty === difficultyLevel);
+            const wordPool = availableWords.length > 0 ? availableWords : vocabulary;
+            const correctWord = wordPool[Math.floor(Math.random() * wordPool.length)];
+            
+            const options = [correctWord];
+            while (options.length < 4) {
+                const randomWord = vocabulary[Math.floor(Math.random() * vocabulary.length)];
+                if (!options.includes(randomWord)) {
+                    options.push(randomWord);
+                }
+            }
+            
+            options.sort(() => Math.random() - 0.5);
+            
+            currentQuestion = {
+                correct: correctWord,
+                options: options
+            };
+            
+            document.getElementById('questionText').textContent = correctWord.korean;
+            
+            if (isBossRound) {
+                document.getElementById('questionType').textContent = 
+                    `⚡ BOSS战！需连续答对${bossHitsNeeded}次 | BOSS전! ${bossHitsNeeded}번 연속 정답 필요`;
+            } else {
+                document.getElementById('questionType').textContent = 
+                    '请选择正确的翻译 | 올바른 번역을 선택하세요';
+            }
+            
+            const optionsArea = document.getElementById('optionsArea');
+            optionsArea.innerHTML = '';
+            
+            options.forEach((option) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerHTML = `
+                    <div style="font-size: 1.1em; margin-bottom: 5px;">${option.chinese}</div>
+                    <div style="font-size: 0.9em; color: #aaa;">${option.english}</div>
+                `;
+                btn.onclick = () => checkAnswer(option, btn);
+                optionsArea.appendChild(btn);
+            });
+        }
+
+        // ============================================
+        // 检查答案
+        // ============================================
+        function checkAnswer(selectedWord, button) {
+            const reactionTime = (Date.now() - questionStartTime) / 1000;
+            reactionTimes.push(reactionTime);
+            totalQuestions++;
+            
+            const isCorrect = selectedWord === currentQuestion.correct;
+            
+            const allButtons = document.querySelectorAll('.option-btn');
+            allButtons.forEach(btn => btn.disabled = true);
+            
+            if (isCorrect) {
+                correctAnswers++;
+                score += 10 * difficultyLevel;
+                consecutiveCorrect++;
+                consecutiveWrong = 0;
+                button.classList.add('correct');
+                
+                if (isBossRound) {
+                    bossHits++;
+                    if (bossHits >= bossHitsNeeded) {
+                        shootBullet();
+                    } else {
+                        setTimeout(() => {
+                            generateQuestion();
+                        }, 800);
+                        return;
+                    }
+                } else {
+                    shootBullet();
+                }
+                
+                if (consecutiveCorrect >= 3 && difficultyLevel < 3) {
+                    difficultyLevel++;
+                    consecutiveCorrect = 0;
+                }
+                
+                correctHistory.push(1);
+                
+            } else {
+                consecutiveWrong++;
+                consecutiveCorrect = 0;
+                button.classList.add('wrong');
+                
+                allButtons.forEach(btn => {
+                    const btnText = btn.querySelector('div').textContent;
+                    if (btnText === currentQuestion.correct.chinese) {
+                        btn.classList.add('correct');
+                    }
+                });
+                
+                monsters.forEach(monster => monster.speedUp());
+                
+                if (consecutiveWrong >= 2 && difficultyLevel > 1) {
+                    difficultyLevel--;
+                    consecutiveWrong = 0;
+                }
+                
+                correctHistory.push(0);
+            }
+            
+            difficultyHistory.push(difficultyLevel);
+            updateUI();
+            
+            setTimeout(() => {
+                if (!isBossRound || bossHits >= bossHitsNeeded) {
+                    spawnMonster();
+                }
+                generateQuestion();
+            }, 1000);
+        }
+
+        // ============================================
+        // 发射子弹
+        // ============================================
+        function shootBullet() {
+            if (monsters.length > 0) {
+                const target = monsters[0];
+                bullets.push(new Bullet(target.x, target.y));
+            }
+        }
+
+        // ============================================
+        // 更新UI
+        // ============================================
+        function updateUI() {
+            document.getElementById('scoreDisplay').textContent = score;
+            
+            const accuracy = totalQuestions > 0 ? 
+                ((correctAnswers / totalQuestions) * 100).toFixed(1) : 100;
+            document.getElementById('accuracyDisplay').textContent = accuracy + '%';
+            
+            document.getElementById('difficultyDisplay').textContent = difficultyLevel;
+            document.getElementById('escapedDisplay').textContent = `${escapedMonsters}/${maxEscaped}`;
+        }
+
+        // ============================================
+        // 游戏主循环
+        // ============================================
+        function gameLoop() {
+            if (!gameRunning) return;
+            
+            ctx.fillStyle = 'rgba(15, 12, 41, 0.3)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#00d4ff';
+            ctx.fillRect(20, canvas.height / 2 - 30, 60, 60);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 30px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('🏰', 50, canvas.height / 2 + 10);
+            
+            for (let i = monsters.length - 1; i >= 0; i--) {
+                const monster = monsters[i];
+                monster.update();
+                monster.draw();
+                
+                if (monster.x + monster.size < 0) {
+                    monsters.splice(i, 1);
+                    escapedMonsters++;
+                    
+                    if (escapedMonsters >= maxEscaped) {
+                        endGame(false);
+                        return;
+                    }
+                    updateUI();
+                }
+            }
+            
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const bullet = bullets[i];
+                bullet.update();
+                bullet.draw();
+                
+                for (let j = monsters.length - 1; j >= 0; j--) {
+                    const monster = monsters[j];
+                    const dx = bullet.x - monster.x;
+                    const dy = bullet.y - monster.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < monster.size) {
+                        bullets.splice(i, 1);
+                        if (monster.takeDamage(50)) {
+                            monsters.splice(j, 1);
+                        }
+                        break;
+                    }
+                }
+                
+                if (bullet.isOffScreen()) {
+                    bullets.splice(i, 1);
+                }
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ============================================
+        // 结束游戏
+        // ============================================
+        function endGame(victory) {
+            gameRunning = false;
+            
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            
+            document.getElementById('resultPlayerName').textContent = playerName;
+            
+            if (victory) {
+                document.getElementById('resultTitle').textContent = '🎉 胜利！ | 승리! 🎉';
+                document.getElementById('resultTitle').style.color = '#00ff88';
+            } else {
+                document.getElementById('resultTitle').textContent = '😢 失败 | 실패 😢';
+                document.getElementById('resultTitle').style.color = '#ff0088';
+            }
+            
+            const accuracy = totalQuestions > 0 ? 
+                ((correctAnswers / totalQuestions) * 100).toFixed(1) : 0;
+            
+            const avgReactionTime = reactionTimes.length > 0 ?
+                (reactionTimes.reduce((a, b) => a + b, 0) / reactionTimes.length).toFixed(2) : 0;
+            
+            const maxDifficulty = difficultyHistory.length > 0 ? Math.max(...difficultyHistory) : 1;
+            
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('finalAccuracy').textContent = accuracy + '%';
+            document.getElementById('avgReactionTime').textContent = avgReactionTime + 's';
+            document.getElementById('maxDifficulty').textContent = maxDifficulty;
+            
+            drawAccuracyChart();
+            drawDifficultyChart();
+            drawReactionChart();
+        }
+
+        // ============================================
+        // 绘制正确率趋势图
+        // ============================================
+        function drawAccuracyChart() {
+            const canvas = document.getElementById('accuracyChart');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+            
+            const padding = 40;
+            const width = canvas.width - padding * 2;
+            const height = canvas.height - padding * 2;
+            
+            const accuracyData = [];
+            let correct = 0;
+            for (let i = 0; i < correctHistory.length; i++) {
+                correct += correctHistory[i];
+                accuracyData.push((correct / (i + 1)) * 100);
+            }
+            
+            if (accuracyData.length === 0) return;
+            
+            const n = accuracyData.length;
+            let sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+            
+            for (let i = 0; i < n; i++) {
+                sumX += i;
+                sumY += accuracyData[i];
+                sumXY += i * accuracyData[i];
+                sumX2 += i * i;
+            }
+            
+            const m = (n * sumXY - sumX * sumY) / (n * sumX2 - sumX * sumX);
+            const b = (sumY - m * sumX) / n;
+            
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+            
+            ctx.strokeStyle = '#00d4ff';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            for (let i = 0; i < accuracyData.length; i++) {
+                const x = padding + (i / (accuracyData.length - 1)) * width;
+                const y = canvas.height - padding - (accuracyData[i] / 100) * height;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+                
+                ctx.fillStyle = '#00ff88';
+                ctx.beginPath();
+                ctx.arc(x, y, 3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.stroke();
+            
+            ctx.strokeStyle = '#ff0088';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            ctx.beginPath();
+            
+            const startY = canvas.height - padding - (b / 100) * height;
+            const endY = canvas.height - padding - ((m * (n - 1) + b) / 100) * height;
+            
+            ctx.moveTo(padding, startY);
+            ctx.lineTo(canvas.width - padding, endY);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('题号 | 문제 번호', canvas.width / 2, canvas.height - 10);
+            
+            ctx.save();
+            ctx.translate(15, canvas.height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('正确率% | 정답률%', 0, 0);
+            ctx.restore();
+        }
+
+        // ============================================
+        // 绘制难度变化图
+        // ============================================
+        function drawDifficultyChart() {
+            const canvas = document.getElementById('difficultyChart');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+            
+            const padding = 40;
+            const width = canvas.width - padding * 2;
+            const height = canvas.height - padding * 2;
+            
+            if (difficultyHistory.length === 0) return;
+            
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+            
+            ctx.strokeStyle = '#00ff88';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            for (let i = 0; i < difficultyHistory.length; i++) {
+                const x = padding + (i / Math.max(1, difficultyHistory.length - 1)) * width;
+                const y = canvas.height - padding - ((difficultyHistory[i] - 1) / 2) * height;
+                
+                if (i === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            }
+            ctx.stroke();
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('IRT难度自适应 | IRT 난이도 적응', canvas.width / 2, canvas.height - 10);
+        }
+
+        // ============================================
+        // 绘制反应时间分布图
+        // ============================================
+        function drawReactionChart() {
+            const canvas = document.getElementById('reactionChart');
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 200;
+            
+            const padding = 40;
+            const width = canvas.width - padding * 2;
+            const height = canvas.height - padding * 2;
+            
+            if (reactionTimes.length === 0) return;
+            
+            ctx.fillStyle = '#1a1a2e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, canvas.height - padding);
+            ctx.lineTo(canvas.width - padding, canvas.height - padding);
+            ctx.stroke();
+            
+            const maxTime = Math.max(...reactionTimes);
+            const barWidth = width / reactionTimes.length;
+            
+            for (let i = 0; i < reactionTimes.length; i++) {
+                const barHeight = (reactionTimes[i] / maxTime) * height;
+                const x = padding + i * barWidth;
+                const y = canvas.height - padding - barHeight;
+                
+                if (reactionTimes[i] < 2) {
+                    ctx.fillStyle = '#00ff88';
+                } else if (reactionTimes[i] < 4) {
+                    ctx.fillStyle = '#00d4ff';
+                } else {
+                    ctx.fillStyle = '#ff0088';
+                }
+                
+                ctx.fillRect(x, y, barWidth - 2, barHeight);
+            }
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('反应时间分布 | 반응 시간 분포', canvas.width / 2, canvas.height - 10);
+        }
+
+        // ============================================
+        // 重新开始游戏
+        // ============================================
+        function restartGame() {
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
